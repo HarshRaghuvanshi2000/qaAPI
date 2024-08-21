@@ -38,14 +38,14 @@ CREATE TABLE `call_data` (
   `created_at` timestamp NOT NULL DEFAULT '2024-08-06 22:07:04' ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT '2024-08-06 22:07:04',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `call_data` (`id`, `signal_id`, `event_id`, `signal_type`, `signal_landing_time`, `event_maintype`, `event_subtype`, `voip_extn`, `agent_name`, `addl_signal_info`, `voice_path`, `call_pick_duration_millis`, `call_duration_millis`, `event_registration_time`, `agent_full_name`, `priority`, `district_code`, `victim_name`, `victim_age`, `victim_gender`, `victim_address`, `near_ps`, `addl_info`, `call_type`, `review_status`, `is_active`, `created_at`, `updated_at`) VALUES
-(1,	37610725,	6144298,	1,	'31-07-2024 23:59',	'CRIME AGAINST WOMEN',	'DOMESTIC VIOLENCE',	'101003',	'CO3341',	'EVENT ID-6144381',	'https://www2.cs.uic.edu/~i101/SoundFiles/BabyElephantWalk60.wav',	'2606',	'196934',	'1/8/2024 0:02',	'Riya sharma',	'HIGH',	'Jind',	'SULEKHA W/O MAHENDAR',	'NULL',	'M',	'NULL',	'JIND SADAR',	'CALLER NE KAHA HAI KI BHEN KE SAATH PATI MARPIIT KAR RAHA HAI UNKA',	'',	'completed',	'Y',	'2024-08-13 10:55:44',	'2024-08-10 23:58:10'),
-(2,	37610722,	6144273,	1,	'31-07-2024 23:59',	'TRAFFIC JAM',	'NULL',	'101044',	'CO3341',	'',	'https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand3.wav',	'1501',	'104014',	'1/8/2024 0:00',	'Riya sharma',	'HIGH',	'Gurugram',	'JYOT SANA',	'NULL',	'F',	'SEC 34 GURUGRAM \r\n NEAR HERO HONDA CHOWK',	'GURGAON SADAR',	'CALLER SAID KI JAAM LAGA HAI',	'',	'completed',	'Y',	'2024-08-13 11:03:37',	'2024-08-10 23:58:10'),
-(3,	37610694,	6144262,	1,	'31-07-2024 23:58',	'NULL',	'NULL',	'101009',	'CO3378',	'',	'https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand60.wav',	'1409',	'56805',	'31-07-2024 23:59',	'Diksha Bhardwaj',	'NULL',	'NULL',	'swati',	'NULL',	'F',	'singhuwala, ambala',	'NULL',	'caller ne btaya ki ghar se koi bag chori hua hai father caller ko preshan kar rahe hai us par illjam lga rahe hai \r\n caller ne proper info. nahi di , caller ab call pick nahi kar rahi hai , do dcr ambala me caller ki info. note krai hai',	'',	'completed',	'Y',	'2024-08-13 11:04:06',	'2024-08-10 23:58:10'),
-(4,	37610687,	6144261,	1,	'31-07-2024 23:58',	'PREGNANT WOMEN',	'ANTENATAL CARE',	'101046',	'CO3378',	'',	'https://www2.cs.uic.edu/~i101/SoundFiles/Fanfare60.wav',	'1507',	'166223',	'31-07-2024 23:59',	'Diksha Bhardwaj',	'HIGH',	'Yamunanagar',	'POOJA DEVI W/O DHRAMVEER',	'NULL',	'F',	'DRAJPUR, YAMUANNAGAR \r\n  NEAR BY ,RAVIDAS MANDIR',	'CHHAPAR',	'CALLER NE BATAYA KI DELIVERY CASE HAI ..',	'',	'Pending',	'Y',	'2024-08-13 11:04:35',	'2024-08-10 23:58:10'),
-(5,	37610682,	6143550,	1,	'31-07-2024 23:58',	'CRIME AGAINST WOMEN',	'MOLESTATION',	'101032',	'CO3401',	'EVENT ID 6143550\r\n ALL READY CASE DISPATCH',	'https://www2.cs.uic.edu/~i101/SoundFiles/gettysburg10.wav',	'1402',	'50643',	'NULL',	'Renuka',	'EMERGENCY',	'Rewari',	'anu d/o harfoul',	'19',	'F',	'goll chakar rewari \r\n  civil hospital , sanik school',	'REWARI CITY',	'caller said makan malik ka ladka drink ker ke \r\n ghar me ghuss gya hai ..nand or bhabi ko \r\n  galat tarike se touch kiya hai ..\r\n  moke per hai ..',	'',	'Pending',	'Y',	'2024-08-13 10:03:35',	'2024-08-10 23:58:10'),
+(1,	37610725,	6144298,	1,	'31-07-2024 23:59',	'CRIME AGAINST WOMEN',	'DOMESTIC VIOLENCE',	'101003',	'CO3341',	'EVENT ID-6144381',	'https://www2.cs.uic.edu/~i101/SoundFiles/BabyElephantWalk60.wav',	'2606',	'196934',	'1/8/2024 0:02',	'Riya sharma',	'HIGH',	'Jind',	'SULEKHA W/O MAHENDAR',	'NULL',	'M',	'NULL',	'JIND SADAR',	'CALLER NE KAHA HAI KI BHEN KE SAATH PATI MARPIIT KAR RAHA HAI UNKA',	'',	'Completed',	'Y',	'2024-08-21 08:17:26',	'2024-08-10 23:58:10'),
+(2,	37610722,	6144273,	1,	'31-07-2024 23:59',	'TRAFFIC JAM',	'NULL',	'101044',	'CO3341',	'',	'https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand3.wav',	'1501',	'104014',	'1/8/2024 0:00',	'Riya sharma',	'HIGH',	'Gurugram',	'JYOT SANA',	'NULL',	'F',	'SEC 34 GURUGRAM \r\n NEAR HERO HONDA CHOWK',	'GURGAON SADAR',	'CALLER SAID KI JAAM LAGA HAI',	'',	'Completed',	'Y',	'2024-08-21 10:13:20',	'2024-08-10 23:58:10'),
+(3,	37610694,	6144262,	1,	'31-07-2024 23:58',	'NULL',	'NULL',	'101009',	'CO3378',	'',	'https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand60.wav',	'1409',	'56805',	'31-07-2024 23:59',	'Diksha Bhardwaj',	'NULL',	'NULL',	'swati',	'NULL',	'F',	'singhuwala, ambala',	'NULL',	'caller ne btaya ki ghar se koi bag chori hua hai father caller ko preshan kar rahe hai us par illjam lga rahe hai \r\n caller ne proper info. nahi di , caller ab call pick nahi kar rahi hai , do dcr ambala me caller ki info. note krai hai',	'',	'Completed',	'Y',	'2024-08-21 10:13:28',	'2024-08-10 23:58:10'),
+(4,	37610687,	6144261,	1,	'31-07-2024 23:58',	'PREGNANT WOMEN',	'ANTENATAL CARE',	'101046',	'CO3378',	'',	'https://www2.cs.uic.edu/~i101/SoundFiles/Fanfare60.wav',	'1507',	'166223',	'31-07-2024 23:59',	'Diksha Bhardwaj',	'HIGH',	'Yamunanagar',	'POOJA DEVI W/O DHRAMVEER',	'NULL',	'F',	'DRAJPUR, YAMUANNAGAR \r\n  NEAR BY ,RAVIDAS MANDIR',	'CHHAPAR',	'CALLER NE BATAYA KI DELIVERY CASE HAI ..',	'',	'Completed',	'Y',	'2024-08-21 10:13:37',	'2024-08-10 23:58:10'),
+(5,	37610682,	6143550,	1,	'31-07-2024 23:58',	'CRIME AGAINST WOMEN',	'MOLESTATION',	'101032',	'CO3401',	'EVENT ID 6143550\r\n ALL READY CASE DISPATCH',	'https://www2.cs.uic.edu/~i101/SoundFiles/gettysburg10.wav',	'1402',	'50643',	'NULL',	'Renuka',	'EMERGENCY',	'Rewari',	'anu d/o harfoul',	'19',	'F',	'goll chakar rewari \r\n  civil hospital , sanik school',	'REWARI CITY',	'caller said makan malik ka ladka drink ker ke \r\n ghar me ghuss gya hai ..nand or bhabi ko \r\n  galat tarike se touch kiya hai ..\r\n  moke per hai ..',	'',	'Completed',	'Y',	'2024-08-21 10:14:28',	'2024-08-10 23:58:10'),
 (6,	37610681,	6141393,	1,	'31-07-2024 23:58',	'TRAFFIC JAM',	'NULL',	'101022',	'CO3339',	'E.ID:- 6141393',	'https://www2.cs.uic.edu/~i101/SoundFiles/gettysburg.wav',	'2708',	'75908',	'NULL',	'Anu Devi',	'HIGH',	'Gurugram',	'vipin',	'NULL',	'M',	'sector 55 gurugram \r\n gata chowk',	'DLF PHASE-1',	'caller said jam laga hai ..\r\n  1 ganta ho gya hai ..',	'',	'Pending',	'Y',	'2024-08-12 10:51:21',	'2024-08-10 23:58:10'),
 (7,	37610680,	6144246,	1,	'31-07-2024 23:58',	'ACCIDENT',	'NULL',	'101053',	'CO3650',	'',	'https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav',	'2320',	'98407',	'31-07-2024 23:58',	'POONAM',	'HIGH',	'Gurugram',	'SURENDER',	'NULL',	'M',	'SECTOR 48 GURUGARM',	'GURGAON SADAR',	'CALLER SAID KE UNKI CAR BHICH MEIN BAND HO GYI HAI ..OR BHICH MEIN SE TUT GYI HAI \r\n OR NEED HELP',	'',	'Pending',	'Y',	'2024-08-12 10:51:21',	'2024-08-10 23:58:10'),
 (8,	37610678,	6144248,	1,	'31-07-2024 23:58',	'SUICIDE',	'SUICIDE BY POISON',	'101016',	'CO3648',	'',	'https://www2.cs.uic.edu/~i101/SoundFiles/PinkPanther30.wav',	'2008',	'212837',	'31-07-2024 23:58',	'Anshu',	'HIGH',	'Gurugram',	'anurag',	'NULL',	'M',	'imt manesar , sector 6 naharpur kasan , gurugram',	'MANESAR',	'caller ne bola ki ek dost hai unka or room par rehta tha vo caller ke sath mein ...\r\n sucide kiya hai 6 bhje subah ajj ..poison kha liya hai uske dost ne ..\r\n  ladai jagda bhi nahi tha ....police wali team subah le ja chuki hai unke dost ko ....need police help...',	'',	'Pending',	'Y',	'2024-08-12 10:51:21',	'2024-08-10 23:58:10'),
@@ -108,12 +108,76 @@ CREATE TABLE `co_qa_data` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `co_qa_data` (`id`, `signal_id`, `sco_qa_time`, `sop_score`, `active_listening_score`, `relevent_detail_score`, `address_tagging_score`, `call_handled_time_score`, `sco_employee_code`, `sco_remarks`, `is_active`, `created_at`, `updated_at`) VALUES
 (49,	37610722,	'12323312',	1,	2,	3,	2,	1,	'ABC1',	'test data',	'Y',	'2024-08-13 10:11:31',	'2024-08-13 10:11:31'),
 (50,	37610725,	'12323312',	1,	2,	3,	2,	1,	'ABC1',	'test data',	'Y',	'2024-08-13 10:55:44',	'2024-08-13 10:55:44'),
 (51,	37610694,	'12323312',	1,	3,	2,	2,	3,	'ABC2',	'gf',	'Y',	'2024-08-13 10:55:52',	'2024-08-13 10:55:52'),
-(52,	37610694,	'12323312',	1,	3,	1,	2,	1,	'ABC2',	'ghnmghjmn',	'Y',	'2024-08-13 10:56:23',	'2024-08-13 10:56:23');
+(52,	37610694,	'12323312',	1,	3,	1,	2,	1,	'ABC2',	'ghnmghjmn',	'Y',	'2024-08-13 10:56:23',	'2024-08-13 10:56:23'),
+(53,	37610687,	'12323312',	1,	2,	1,	2,	1,	'rohit',	'Testing',	'Y',	'2024-08-14 08:08:45',	'2024-08-14 08:08:45'),
+(54,	37610682,	'12323312',	1,	2,	2,	3,	3,	'rohit',	'test data',	'Y',	'2024-08-14 08:36:58',	'2024-08-14 08:36:58');
 
--- 2024-08-13 12:16:28
+DROP TABLE IF EXISTS `master_signal_type`;
+CREATE TABLE `master_signal_type` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `signal_type_id` int NOT NULL,
+  `signal_type` text NOT NULL,
+  `percentage_of_calls_qa` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `maximum_limit` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `is_active` varchar(2) NOT NULL,
+  `created_at` timestamp NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `master_signal_type` (`id`, `signal_type_id`, `signal_type`, `percentage_of_calls_qa`, `maximum_limit`, `is_active`, `created_at`, `updated_at`) VALUES
+(1,	1,	'Actionable Calls',	'5',	'500',	'Y',	'2024-08-20 06:15:24',	'2024-08-20 06:10:02'),
+(2,	2,	'Abusive Calls',	'2',	'100',	'Y',	'2024-08-20 06:15:34',	'2024-08-20 06:10:02'),
+(3,	3,	'Missed Calls',	'2',	'100',	'Y',	'2024-08-20 06:15:44',	'2024-08-20 06:10:02'),
+(4,	4,	'Non Voice Signal',	'2',	'100',	'Y',	'2024-08-20 06:15:53',	'2024-08-20 06:10:02'),
+(5,	5,	'No Response calls',	'2',	'100',	'Y',	'2024-08-20 06:16:00',	'2024-08-20 06:10:02'),
+(6,	6,	'Trip Monitoring calls',	'100',	'100',	'Y',	'2024-08-20 06:16:10',	'2024-08-20 06:10:02'),
+(7,	7,	'Feedback calls',	'1',	'100',	'Y',	'2024-08-20 06:16:21',	'2024-08-20 06:10:02');
+
+DROP TABLE IF EXISTS `signal_type_all`;
+CREATE TABLE `signal_type_all` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `signal_type_id` int DEFAULT NULL,
+  `signal_type` text,
+  `is_active` varchar(2) DEFAULT 'Y',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `signal_type_all` (`id`, `signal_type_id`, `signal_type`, `is_active`, `created_at`, `updated_at`) VALUES
+(1,	0,	'UNANSWERED CALL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(2,	1,	'MISSED CALL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(3,	2,	'REJECTED CALL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(4,	3,	'PENDING SIGNAL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(5,	4,	'PENDING ACTION SIGNAL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(6,	5,	'ACTION SIGNAL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(7,	6,	'REVIEWED MISSED CALL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(8,	7,	'REPLY FOR ADDL INFO',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(9,	8,	'INSUFFICIENT INFO',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(10,	9,	'ENQUIRY SIGNAL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(11,	10,	'INFORMATION SIGNAL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(12,	11,	'PRANK SIGNAL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(13,	12,	'ABUSIVE SIGNAL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(14,	13,	'IRRELEVANT SIGNAL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(15,	14,	'FORWARDED SIGNAL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(16,	15,	'OUTBOUND SIGNAL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(17,	16,	'OUTBOUND SIGNAL COMPLETE',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(18,	17,	'REVIEWED UNANSWERED CALL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(19,	18,	'REVIEWED REJECTED CALL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(20,	19,	'NUISANCE CALL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(21,	20,	'WRONG CALL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(22,	21,	'NO RESPONSE CALL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(23,	22,	'SILENT CALL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(24,	23,	'APPRECIATION OF SERVICE CALL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(25,	24,	'SERVICE PROVIDED',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(26,	25,	'REPEATED SIGNAL',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06'),
+(27,	26,	'SAFE JOURNEY REQUEST',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06');
+
+-- 2024-08-21 11:45:16

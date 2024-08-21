@@ -195,7 +195,7 @@ exports.createCoQaData = (req, res) => {
   // SQL query to update the review_status in the call_data table
   const updateQuery = `
     UPDATE call_data
-    SET review_status = 'completed'
+    SET review_status = 'Completed'
     WHERE signal_id = ?
   `;
 
@@ -253,3 +253,77 @@ exports.createCoQaData = (req, res) => {
     );
   });
 };
+exports.updateStatus = (req, res) => {
+  const { signalId, status } = req.body;
+
+  // Validate that both signalId and status are provided
+  if (!signalId || !status) {
+    return res.status(400).json({ error: 'Both signalId and status must be provided.' });
+  }
+
+  // SQL query to update the review_status in the call_data table
+  const updateQuery = `
+    UPDATE call_data
+    SET review_status = ?
+    WHERE signal_id = ?
+  `;
+
+  // Execute the update query
+  db.query(updateQuery, [status, signalId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ error: 'No record found with the provided signalId.' });
+    }
+
+    res.status(200).json({ message: 'Status successfully updated.' });
+  });
+};
+
+exports.getCallSummaryBySignalType = (req, res) => {
+  const getSignalTypesQuery = `SELECT signal_type_id, signal_type FROM master_signal_type WHERE is_active = 'Y'`;
+
+  db.query(getSignalTypesQuery, (err, signalTypes) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    const callSummary = [];
+    const getCallDataForSignalType = (index) => {
+      if (index >= signalTypes.length) {
+        return res.json(callSummary);
+      }
+
+      const { signal_type_id, signal_type } = signalTypes[index];
+
+      const getCallDataQuery = `
+        SELECT 
+        COUNT(*) AS totalCalls,
+        SUM(CASE WHEN review_status = 'Completed' THEN 1 ELSE 0 END) AS completedCalls,
+        SUM(CASE WHEN review_status = 'Pending' THEN 1 ELSE 0 END) AS pendingCalls
+    FROM call_data
+    WHERE signal_type = ?
+`;
+
+      db.query(getCallDataQuery, [signal_type_id], (err, callData) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }           
+
+        callSummary.push({
+          signalType: signal_type,
+          signalTypeId: signal_type_id,
+          totalCalls: callData[0]?.totalCalls ?? 0,
+          completedCalls: callData[0]?.completedCalls ?? 0,
+          pendingCalls: callData[0]?.pendingCalls ?? 0,
+        });
+
+        getCallDataForSignalType(index + 1);
+      });
+    };
+    getCallDataForSignalType(0);
+  });
+};
+
