@@ -1,52 +1,5 @@
 const db = require('../db')
 
-// New function to get data from co_qa_data within a date range
-// exports.getCoQaDataByDateRange = (req, res) => {
-//   const { startDate, endDate } = req.query;
-
-//   // Ensure the dates are in the correct format
-//   const formattedStartDate = `${startDate.split('-').reverse().join('-')} 00:00:00`;
-//   const formattedEndDate = `${endDate.split('-').reverse().join('-')} 23:59:59`;
-
-//   const query = `
-//   SELECT
-//     c.signal_id,
-//     c.sco_qa_time,
-//     c.sop_score,
-//     c.active_listening_score,
-//     c.relevent_detail_score,
-//     c.address_tagging_score,
-//     c.call_handled_time_score,
-//     c.sco_employee_code,
-//     c.sco_remarks,
-//     d.review_status,
-//     d.agent_name,
-//     d.agent_full_name,
-//     d.call_duration_millis,
-//     d.signal_landing_time
-//   FROM co_qa_data c
-//   JOIN call_data d
-//     ON c.signal_id = d.signal_id
-//   WHERE
-//     d.review_status = 'completed'
-//   ORDER BY d.signal_landing_time DESC;
-// `;
-
-//   // Form the final query with parameters inserted
-//   const formattedQuery = query.replace('?', `'${formattedStartDate}'`).replace('?', `'${formattedEndDate}'`);
-
-//   // Log the fully formed query
-//   console.log('Executing query:', formattedQuery);
-
-//   // Execute the query with the provided date range
-//   db.query(query, [formattedStartDate, formattedEndDate], (err, results) => {
-//     if (err) {
-//       return res.status(500).json({ error: err.message });
-//     }
-//     res.json(results);
-//   });
-// };
-
 
 exports.getCoQaDataByDateRange = (req, res) => {
   const { startDate, endDate } = req.query;
@@ -87,6 +40,15 @@ exports.getCoQaDataByDateRange = (req, res) => {
     const aggregatedData = results.reduce((acc, curr) => {
       const { agent_name } = curr;
 
+      // Calculate the average score for the current row
+      const rowAverageScore = (
+        curr.sop_score +
+        curr.active_listening_score +
+        curr.relevent_detail_score +
+        curr.address_tagging_score +
+        curr.call_handled_time_score
+      ) / 5;
+
       if (!acc[agent_name]) {
         acc[agent_name] = {
           co_employee_code: curr.agent_name,
@@ -115,12 +77,9 @@ exports.getCoQaDataByDateRange = (req, res) => {
     }, {});
 
     const aggregatedArray = Object.values(aggregatedData).map(agent => {
-      const totalScores = agent.sop_score + agent.active_listening_score + agent.relevent_detail_score + agent.address_tagging_score + agent.call_handled_time_score;
-      const averageScore = totalScores / 5; // Since there are 5 different scores
-
       return {
         ...agent,
-        average_score: averageScore,
+        average_score: agent.total_scores / agent.total_calls, // Calculate the overall average score for the agent
         average_call_duration_millis: agent.call_duration_millis / agent.total_calls,
       };
     });
