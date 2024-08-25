@@ -55,6 +55,7 @@ exports.getCoQaDataByDateRange = (req, res) => {
           co_name: curr.agent_full_name,
           total_calls: 0,
           total_completed_calls: 0,
+          total_scores: 0,
           sop_score: 0,
           active_listening_score: 0,
           relevent_detail_score: 0,
@@ -66,6 +67,7 @@ exports.getCoQaDataByDateRange = (req, res) => {
 
       acc[agent_name].total_calls += 1;
       acc[agent_name].total_completed_calls += 1;
+      acc[agent_name].total_scores += rowAverageScore; // Accumulate the row's average score
       acc[agent_name].sop_score += curr.sop_score;
       acc[agent_name].active_listening_score += curr.active_listening_score;
       acc[agent_name].relevent_detail_score += curr.relevent_detail_score;
@@ -87,6 +89,7 @@ exports.getCoQaDataByDateRange = (req, res) => {
     res.json(aggregatedArray);
   });
 };
+
 
 
 
