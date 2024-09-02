@@ -32,7 +32,7 @@ CREATE TABLE `call_data` (
   `victim_address` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   `near_ps` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   `addl_info` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  `call_type` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `signal_status` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   `review_status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'Pending',
   `is_active` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'Y',
   `created_at` timestamp NOT NULL DEFAULT '2024-08-06 22:07:04' ON UPDATE CURRENT_TIMESTAMP,
@@ -181,3 +181,41 @@ INSERT INTO `signal_type_all` (`id`, `signal_type_id`, `signal_type`, `is_active
 (27,	26,	'SAFE JOURNEY REQUEST',	'Y',	'2024-08-21 07:10:06',	'2024-08-21 07:10:06');
 
 -- 2024-08-21 11:45:16
+CREATE TABLE master_signal_status (
+    id INT(30) AUTO_INCREMENT PRIMARY KEY,
+    signal_status_id INT(30),
+    signal_status TEXT,
+    is_active VARCHAR(2) DEFAULT 'Y',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+INSERT INTO master_signal_status (signal_status_id, signal_status)
+VALUES
+(0,  'UNANSWERED CALL'),
+(1,  'MISSED CALL'),
+(2,  'REJECTED CALL'),
+(3,  'PENDING SIGNAL'),
+(4,  'PENDING ACTION SIGNAL'),
+(5,  'ACTION SIGNAL'),
+(6,  'REVIEWED MISSED CALL'),
+(7,  'REPLY FOR ADDL INFO'),
+(8,  'INSUFFICIENT INFO'),
+(9,  'ENQUIRY SIGNAL'),
+(10, 'INFORMATION SIGNAL'),
+(11, 'PRANK SIGNAL'),
+(12, 'ABUSIVE SIGNAL'),
+(13, 'IRRELEVANT SIGNAL'),
+(14, 'FORWARDED SIGNAL'),
+(15, 'OUTBOUND SIGNAL'),
+(16, 'OUTBOUND SIGNAL COMPLETE'),
+(17, 'REVIEWED UNANSWERED CALL'),
+(18, 'REVIEWED REJECTED CALL'),
+(19, 'NUISANCE CALL'),
+(20, 'WRONG CALL'),
+(21, 'NO RESPONSE CALL'),
+(22, 'SILENT CALL'),
+(23, 'APPRECIATION OF SERVICE CALL'),
+(24, 'SERVICE PROVIDED'),
+(25, 'REPEATED SIGNAL'),
+(26, 'SAFE JOURNEY REQUEST');
