@@ -110,22 +110,22 @@ async function fetchDataAndInsert() {
     // Update signal_type based on signal_status
     const updateSignalTypeQuery = `
       UPDATE call_data cd
-      JOIN master_signal_status mss ON cd.signal_status = mss.signal_status
-      JOIN master_signal_type mst ON mss.master_signal_type_id = mst.id
+      JOIN master_signal_status mss ON cd.signal_status = mss.signal_status_id
+      JOIN master_signal_type mst ON mss.master_signal_type_id = mst.signal_type_id
       SET cd.signal_type = mst.signal_type_id
       WHERE cd.signal_type IS NULL
     `;
     await connection.execute(updateSignalTypeQuery);
 
-    // Get data from master_signal_type
-    const [signalTypes] = await connection.execute('SELECT * FROM master_signal_type WHERE is_active = "Y"');
+     // Get data from master_signal_type
+     const [signalTypes] = await connection.execute('SELECT * FROM master_signal_type WHERE is_active = "Y"');
 
     for (const type of signalTypes) {
       const percentage = type.percentage_of_calls_qa;
       const maxLimit = type.maximum_limit;
       const signalTypeId = type.signal_type_id;
 
-      // Fetch the distinct agent names and count them for the current signal_type
+      // Fetch call data for the current signal_type
       const [callData] = await connection.execute(`
         SELECT id, agent_name
         FROM call_data
@@ -134,73 +134,43 @@ async function fetchDataAndInsert() {
           AND is_qa_active = 'N'
       `, [signalTypeId]);
 
-      // Calculate the number of calls to review
       const totalCalls = callData.length;
       const numberOfCalls = Math.min(Math.ceil((percentage / 100) * totalCalls), maxLimit);
 
-      // Get distinct agent names
-      const [distinctAgents] = await connection.execute(`
-        SELECT DISTINCT agent_name
-        FROM call_data
-        WHERE signal_type = ?
-          AND STR_TO_DATE(signal_landing_time, '%d-%m-%Y %H:%i') BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 DAY) AND CURDATE()
-          AND is_qa_active = 'N'
-      `, [signalTypeId]);
+      // Group calls by agent_name
+      const agentCallsMap = callData.reduce((acc, call) => {
+        acc[call.agent_name] = acc[call.agent_name] || [];
+        acc[call.agent_name].push(call.id);
+        return acc;
+      }, {});
 
-      const uniqueAgentCount = distinctAgents.length;
-      console.log(uniqueAgentCount);
+      // Flatten the groups and ensure we cycle through each agent_name
+      let markedIds = [];
+      const agentNames = Object.keys(agentCallsMap);
 
-      // If numberOfCalls is greater than or equal to uniqueAgentCount,
-      // ensure at least one call per agent is marked for QA
-      let callsToSelect = numberOfCalls;
-      if (numberOfCalls >= uniqueAgentCount) {
-        callsToSelect = numberOfCalls - uniqueAgentCount;
-      }
+      while (markedIds.length < numberOfCalls) {
+        for (const agent of agentNames) {
+          if (markedIds.length >= numberOfCalls) break;
 
-      // Select the required number of calls
-      const [selectedCalls] = await connection.execute(`
-        SELECT id
-        FROM (
-          SELECT id
-          FROM call_data
-          WHERE signal_type = ?
-            AND STR_TO_DATE(signal_landing_time, '%d-%m-%Y %H:%i') BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 DAY) AND CURDATE()
-            AND is_qa_active = 'N'
-          ORDER BY RAND()
-          LIMIT ?
-        ) AS subquery
-      `, [signalTypeId, callsToSelect]);
-
-      // Ensure at least one call per unique agent is included
-      if (uniqueAgentCount > 0) {
-        const [callsForAgents] = await connection.execute(`
-          SELECT id
-          FROM call_data
-          WHERE signal_type = ?
-            AND STR_TO_DATE(signal_landing_time, '%d-%m-%Y %H:%i') BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 DAY) AND CURDATE()
-            AND is_qa_active = 'N'
-            AND agent_name IN (SELECT DISTINCT agent_name FROM call_data WHERE signal_type = ? AND STR_TO_DATE(signal_landing_time, '%d-%m-%Y %H:%i') BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 DAY) AND CURDATE() AND is_qa_active = 'N')
-          ORDER BY agent_name
-        `, [signalTypeId, signalTypeId]);
-
-        for (const call of callsForAgents) {
-          if (!selectedCalls.find(c => c.id === call.id)) {
-            selectedCalls.push(call);
+          // Select a random id for this agent_name, ensuring no repeats
+          const availableIds = agentCallsMap[agent].filter(id => !markedIds.includes(id));
+          if (availableIds.length > 0) {
+            const randomId = availableIds[Math.floor(Math.random() * availableIds.length)];
+            markedIds.push(randomId);
           }
         }
       }
 
       // Update the selected calls to is_qa_active = 'Y'
-      const idsToUpdate = selectedCalls.map(c => c.id);
-      if (idsToUpdate.length > 0) {
+      if (markedIds.length > 0) {
+        const idsString = markedIds.join(',');
         await connection.execute(`
           UPDATE call_data
           SET is_qa_active = 'Y'
-          WHERE id IN (?)
-        `, [idsToUpdate]);
+          WHERE id IN (${idsString})
+        `);
       }
     }
-
     console.log('Data inserted and updated successfully!');
 
     // Insert log data into the cron_job_logs table
