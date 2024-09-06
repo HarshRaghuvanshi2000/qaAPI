@@ -11,6 +11,7 @@ router.get('/call-summary', usersController.getCallSummaryBySignalType);
 router.get('/sco-detailed-data', usersController.getScoDetailedData);
 router.get('/signal-types', usersController.getSignalTypes);
 router.post('/signal-types', usersController.postSignalTypes);
+router.post('/erss-login', usersController.postLogin);
 
 
 module.exports = router;

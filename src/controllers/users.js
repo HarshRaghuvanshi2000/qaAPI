@@ -415,3 +415,98 @@ exports.postSignalTypes = (req, res) =>{
   });
 };
 
+
+exports.postLogin = (req, res) => {
+  const { username, password, agentType, module } = req.body;
+  // Simple validation for the required fields
+  if (!username || !password || !agentType || !module) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // Simulated response based on the payload provided
+  const response = {
+    httpStatus: 'OK',
+    payLoad: {
+      commonName: `cn: ${username}`,
+      sirName: 'sn: TEST USER',
+      agentRole: 'employeeType: district',
+      userPasswordEncrypted: null,
+      userProfileDto: {
+        employee_code: username,
+        desg_id: null,
+        desg_name: 'DSP',
+        desg_name_hindi: null,
+        dept_id: '0',
+        dept_name: null,
+        e_id: '1234',
+        pan_number: '',
+        email_id: null,
+        fullname: 'TEST USER',
+        fname: 'TEST',
+        lname: 'USER',
+        name_hindi: null,
+        gender: 'M',
+        dob: '1969-03-12',
+        phone: '1234567890',
+        emergency_phone: '',
+        address: 'HNO. 123, SECTOR-05',
+        city: 'GURUGRAM',
+        state: 'HARYANA',
+        zip: '122001',
+        contact: '1234567890',
+        p_address: '',
+        p_city: '',
+        p_state: '',
+        p_zip: '',
+        p_contact: null,
+        joining_date: '1994-04-07',
+        designation_id: '65',
+        employment_type: 'R',
+        authority1: '',
+        authority2: '',
+        marital_status: '',
+        blood_group: 'Tyt2ZQ==',
+        is_active: 'Y',
+        dp_is_active: null,
+        emp_image: null,
+        emp_signature: null,
+        district: null,
+        religion: '',
+        caste: '',
+        passport_detail: '',
+        category_id: '',
+        created_date: '2021-11-28 11:47:06',
+        grade_pay_scale: null,
+        employmenttype: null,
+        allowedModules: [
+          'CO',
+          'DO',
+          'IM',
+          'PMS',
+          'ERV',
+          'WDT',
+          'CITIZEN_PORTAL',
+          'PFT',
+          'REPORTS'
+        ],
+        agentRole: 'DISTRICT_ROLE',
+        allocatedRoleParams: ['Mahendragarh'],
+        agentSubRole: 5,
+        location: 'Mahendragarh',
+        rank1: 'DSP',
+        substantive_rnk: '',
+        belt_no: '',
+        erv_deployed: null,
+        erss_job_profile: null
+      }
+    },
+    totalItems: null,
+    totalPages: null,
+    additionalData: null,
+    token: 'qZgwmNl1DTid0zhN9uC0ffXEakeGxrWH0/vWPa2PrW44MxNktUemMWaN5zQgTPjoCDFFNVXhPnFQrkS0QpOHviaIHGEAF5ifDuk+1Yqk7Pj3HnAnC665alO5DKkGtG0JFYqy94R1AE2EXVDmrCKAqS2OohIOB2haLyNTt04c0AWL+mTGGzcPE9Mu9dTNdWyeoR3NqFRAMgPIu88oyJYiCJGlZoRw8lPPo+Ly76rUfaqpV9jZRMhPnhn3zLTXBSCPCr8S/oZoc7jf4v5uB1oX54eFgoQGYn4+1S+pJBBBZQXeYhMINrlHfaDRHFj1qRuU'
+  };
+
+  // Send the response
+  res.status(200).json(response);
+};
+
