@@ -80,7 +80,7 @@ function handleUpdateStatus(userId, callId, status, ws) {
   userCallMap[userId] = callId;
 
   broadcastStatusUpdate(callId, 'In Progress', ws);
-  ws.send(JSON.stringify({ type: 'STATUS_UPDATE', callId, status: 'Playing' }));
+  ws.send(JSON.stringify({ type: 'STATUS_UPDATE', callId, status: 'Pending' }));
 }
 
 function handleSubmitStatus(callId, ws) {
