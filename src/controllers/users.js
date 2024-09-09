@@ -2,11 +2,28 @@ const db = require('../db')
 
 
 exports.getCoQaDataByDateRange = (req, res) => {
-  const { startDate, endDate, reportType } = req.query;
+  let { startDate, endDate, reportType } = req.query;
+  console.log(req.query);
 
-  // Format dates for SQL query
-  const formattedStartDate = `${startDate.split('-').reverse().join('-')} 00:00:00`;
-  const formattedEndDate = `${endDate.split('-').reverse().join('-')} 23:59:59`;
+  if (!startDate || !endDate) {
+    const today = new Date();
+    const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+
+    // Format the dates to 'YYYY-MM-DD' format
+    const formatDate = (date) => {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${year}-${month}-${day}`;
+    };
+
+    startDate = formatDate(lastMonth);  // One month ago from today
+    endDate = formatDate(today);        // Today's date
+  }
+
+  // Convert formatted start and end dates to JavaScript Date objects
+  const formattedStartDate = new Date(`${startDate}T00:00:00`).getTime(); // Convert to milliseconds
+  const formattedEndDate = new Date(`${endDate}T23:59:59`).getTime();     // Convert to milliseconds
 
   let query;
   let queryParams;
@@ -32,7 +49,7 @@ exports.getCoQaDataByDateRange = (req, res) => {
       JOIN call_data d
         ON c.signal_id = d.signal_id
       WHERE
-        d.review_status = 'completed'
+        d.review_status = 'completed' AND  signal_landing_time BETWEEN ? AND ?
       ORDER BY d.signal_landing_time DESC;
     `;
     queryParams = [formattedStartDate, formattedEndDate];
@@ -135,8 +152,14 @@ exports.getCoQaDataByDateRange = (req, res) => {
 
 exports.getCallData = (req, res) => {
   const { signalType } = req.query;
-  const query = `SELECT * FROM call_data WHERE is_active = 'Y' and signal_type = ?`;
-
+  const query = `
+  SELECT * 
+  FROM call_data 
+  WHERE is_active = 'Y' 
+    AND is_qa_active = 'Y' 
+    AND signal_type = ? 
+    AND FROM_UNIXTIME(signal_landing_time / 1000, '%Y-%m-%d') = DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '%Y-%m-%d')
+`;
   db.query(query, [signalType], (err, results) => {
     if (err) {
       return res.status(500).json({ error: err.message });
@@ -299,14 +322,17 @@ exports.getCallSummaryBySignalType = (req, res) => {
       const { signal_type_id, signal_type } = signalTypes[index];
 
       const getCallDataQuery = `
-        SELECT 
+      SELECT 
         COUNT(*) AS totalCalls,
         SUM(CASE WHEN review_status = 'Completed' THEN 1 ELSE 0 END) AS completedCalls,
         SUM(CASE WHEN review_status = 'Pending' THEN 1 ELSE 0 END) AS pendingCalls
-    FROM call_data
-    WHERE signal_type = ?
-`;
-
+      FROM call_data
+      WHERE is_active = 'Y' 
+        AND is_qa_active = 'Y' 
+        AND signal_type = ? 
+        AND FROM_UNIXTIME(signal_landing_time / 1000, '%Y-%m-%d') = DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '%Y-%m-%d')
+    `;
+    
       db.query(getCallDataQuery, [signal_type_id], (err, callData) => {
         if (err) {
           return res.status(500).json({ error: err.message });

@@ -11,103 +11,122 @@ const dbConfig = {
   port: process.env.DB_PORT || 3306
 };
 
-const IP_ADDR = process.env.IP_ADDR; // Replace with actual IP address from .env
-const PORT = process.env.PORT; // Replace with actual port from .env
+const IP_ADDR = '10.26.0.26'; // Replace with actual IP address from .env
+const PORT = '8080'; // Replace with actual port from .env
+const currentDate = new Date();
 
+// Calculate the previous day
+const previousDay = new Date(currentDate);
+previousDay.setDate(currentDate.getDate() - 1);  // Set to the previous day
+
+// Calculate the start time (00:00:00) of the previous day in milliseconds
+const startTime = new Date(previousDay.setHours(0, 0, 0, 0)).getTime();  // Start of the previous day in milliseconds
+
+// Calculate the end time (23:59:59) of the previous day in milliseconds
+const endTime = new Date(previousDay.setHours(23, 59, 59, 999)).getTime();
 async function fetchDataAndInsert() {
   let connection;
-
   try {
-    // Make the HTTP GET request to the API
-    // const response = await axios.get(`http://${IP_ADDR}:${PORT}/ERSSBiServer/bi/v1/auth/quality/signal-info/complex`, {
-    //   params: {
-    //     startTime: 1722882600000,
-    //     endTime: 1722882900000,
-    //     isSummary: false,
-    //     asDownloadable: true,
-    //     pageNumber: 0,
-    //     pageSize: 500
-    //   }
-    // });
+    const response = await axios.get(`http://${IP_ADDR}:${PORT}/ERSSBiServer/bi/v1/auth/quality/signal-info/complex`, {
+      params: {
+        // startTime: startTime,
+        // endTime: endTime,
+        startTime : 1722882600000,
+        endTime: 1722969000000,
+        isSummary: false,
+        asDownloadable: true,
+        pageNumber: 0,
+        pageSize: 500
+      }
+    });
 
-    // // Extract data from the response
-    // const data = response.data.returnList;
-
-    // // Create a MySQL connection
+    // Extract data from the response
+    const data = response.data.returnList;
+  
+    // Create a MySQL connection
     connection = await mysql.createConnection(dbConfig);
+  
+    // Fetch all signal statuses and their IDs from master_signal_status
+    const [statuses] = await connection.execute('SELECT signal_status, signal_status_id FROM master_signal_status WHERE is_active = "Y"');
 
-    // // Prepare the SQL query for batch insertion
-    // const insertQuery = `
-    //   INSERT INTO call_data (
-    //     signal_id,
-    //     event_id,
-    //     signal_type,
-    //     signal_landing_time,
-    //     event_maintype,
-    //     event_subtype,
-    //     voip_extn,
-    //     agent_name,
-    //     addl_signal_info,
-    //     voice_path,
-    //     call_pick_duration_millis,
-    //     call_duration_millis,
-    //     event_registration_time,
-    //     agent_full_name,
-    //     priority,
-    //     district_code,
-    //     victim_name,
-    //     victim_age,
-    //     victim_gender,
-    //     victim_address,
-    //     near_ps,
-    //     addl_info,
-    //     signal_status,
-    //     review_status,
-    //     is_active,
-    //     created_at,
-    //     updated_at
-    //   ) VALUES ?
-    // `;
+    // Create a lookup map for signal_status to signal_status_id
+    const statusMap = {};
+    statuses.forEach(status => {
+      // Use the signal_status value as is, including underscores
+      statusMap[status.signal_status] = status.signal_status_id;
+    });
+    // Prepare the SQL query for batch insertion
+    const insertQuery = `
+      INSERT INTO call_data (
+        signal_id,
+        event_id,
+        signal_type,
+        signal_landing_time,
+        event_maintype,
+        event_subtype,
+        voip_extn,
+        agent_name,
+        addl_signal_info,
+        voice_path,
+        call_pick_duration_millis,
+        call_duration_millis,
+        event_registration_time,
+        agent_full_name,
+        priority,
+        district_code,
+        victim_name,
+        victim_age,
+        victim_gender,
+        victim_address,
+        near_ps,
+        addl_info,
+        signal_status,
+        review_status,
+        is_active,
+        created_at,
+        updated_at
+      ) VALUES ?
+    `;
+  
+    // Map the data to an array of values
+    const values = data.map(item => {
+      const eventInfo = item.eventBasicInfo || {};
+      const victimInfo = eventInfo.victimInfo || {};
+      const signalStatusId = statusMap[item.signalStatus] || null; // Correct field name for signalStatus
+  return [
+    item.signalId || null,
+    item.eventId || null,
+    null, // Map directly to signalType from API
+    item.signalLandingTime || null,
+    eventInfo.eventMainType || null,
+    eventInfo.eventSubType || null, 
+    item.voipExtn || null,
+    item.agentName || null,
+    item.addlSignalInfo || null,
+    item.voicePath || null,
+    item.callPickDurationMillis || null,  // Ensure null if missing
+    item.callDurationMillis || null,      // Ensure null if missing
+    item.eventRegistrationTime || null,  // Ensure null if missing
+    item.agentFullName || null,
+    eventInfo.priority || null,
+    eventInfo.districtCode || null,
+    victimInfo.personName || null,
+    victimInfo.age || null,                // Ensure null if missing
+    victimInfo.gender || null,             // Ensure null if missing
+    victimInfo.personAddress || null,
+    eventInfo.nearPs || null,
+    eventInfo.addlInfo || null,
+    signalStatusId,
+    'Pending', // review_status default to Pending
+    'Y', // is_active default to Y
+    new Date(), // created_at
+    new Date()  // updated_at
+  ];
+});
+    //Execute the batch insert query
+    await connection.query(insertQuery, [values]);
 
-    // // Map the data to an array of values
-    // const values = data.map(item => {
-    //   const eventInfo = item.eventBasicInfo;
-    //   const victimInfo = eventInfo.victimInfo;
-    //   return [
-    //     item.signalId,
-    //     item.eventId,
-    //     null, // signal_type is null initially
-    //     item.signalLandingTime,
-    //     null, // event_maintype is null
-    //     null, // event_subtype is null
-    //     item.voipExtn,
-    //     item.agentName,
-    //     item.addlSignalInfo,
-    //     item.voicePath,
-    //     item.callPickDurationMillis,
-    //     item.callDurationMillis,
-    //     item.eventRegistrationTime,
-    //     item.agentFullName,
-    //     eventInfo.priority,
-    //     eventInfo.districtCode,
-    //     victimInfo.personName,
-    //     victimInfo.age, // victim_age is null
-    //     victimInfo.gender, // victim_gender is null
-    //     victimInfo.personAddress,
-    //     eventInfo.nearPs,
-    //     eventInfo.addlInfo,
-    //     null, // signal_status is null initially
-    //     'Pending', // review_status default to Pending
-    //     'Y', // is_active default to Y
-    //     new Date(), // created_at
-    //     new Date()  // updated_at
-    //   ];
-    // });
-
-    // Execute the batch insert query
-    // await connection.query(insertQuery, [values]);
-
-    // Update signal_type based on signal_status
+   // Update signal_type based on signal_status
     const updateSignalTypeQuery = `
       UPDATE call_data cd
       JOIN master_signal_status mss ON cd.signal_status = mss.signal_status_id
@@ -126,11 +145,17 @@ async function fetchDataAndInsert() {
       const signalTypeId = type.signal_type_id;
 
       // Fetch call data for the current signal_type
+      // const [callData] = await connection.execute(`
+      //   SELECT id, agent_name
+      //   FROM call_data
+      //   WHERE signal_type = ?
+      //     AND FROM_UNIXTIME(signal_landing_time / 1000) BETWEEN DATE_SUB(NOW(), INTERVAL 1 DAY) AND NOW()
+      //     AND is_qa_active = 'N'
+      // `, [signalTypeId]);
       const [callData] = await connection.execute(`
         SELECT id, agent_name
         FROM call_data
         WHERE signal_type = ?
-          AND STR_TO_DATE(signal_landing_time, '%d-%m-%Y %H:%i') BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 DAY) AND CURDATE()
           AND is_qa_active = 'N'
       `, [signalTypeId]);
 
