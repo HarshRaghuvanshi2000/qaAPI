@@ -31,12 +31,12 @@ async function fetchDataAndInsert() {
       params: {
         // startTime: startTime,
         // endTime: endTime,
-        startTime : 1722882600000,
-        endTime: 1722969000000,
+        startTime : 1725733800000,
+        endTime: 1725820200000,
         isSummary: false,
         asDownloadable: true,
         pageNumber: 0,
-        pageSize: 500
+        pageSize: 10000
       }
     });
 
