@@ -61,12 +61,12 @@ exports.getCoQaDataByDateRange = (req, res) => {
     query = `
   SELECT
     sco_employee_code,
+    sco_name,
     COUNT(*) AS total_calls,
     AVG(sco_qa_time) AS average_qa_time_seconds
-  FROM co_qa_data
-  WHERE
-    created_at BETWEEN ? AND ?
-  GROUP BY sco_employee_code
+FROM co_qa_data
+WHERE created_at BETWEEN ? AND ?
+GROUP BY sco_employee_code, sco_name;
 `;
 
     queryParams = [formattedStartDateSco, formattedEndDateSco];
@@ -134,6 +134,7 @@ exports.getCoQaDataByDateRange = (req, res) => {
     } else if (reportType === 'SCO') {
       // Convert average_qa_time_seconds back to HH:MM:SS format
       const scoResults = results.map(item => ({
+        sco_name: item.sco_name,
         sco_employee_code: item.sco_employee_code,
         total_calls: item.total_calls,
         average_qa_time: item.average_qa_time_seconds,
@@ -180,6 +181,7 @@ exports.createCoQaData = (req, res) => {
     addressTaggingScore,
     callHandledTimeScore,
     scoEmployeeCode,
+    scoName,
     scoRemarks
   } = req.body;
 
@@ -193,6 +195,7 @@ exports.createCoQaData = (req, res) => {
     (addressTaggingScore === undefined) || // Can be NULL
     (callHandledTimeScore === undefined) || // Can be NULL
     scoEmployeeCode === undefined ||
+    scoName === undefined ||
     (scoRemarks === undefined)
   ) {
     return res.status(400).json({ error: 'All required fields must be provided.' });
@@ -209,10 +212,11 @@ exports.createCoQaData = (req, res) => {
       address_tagging_score,
       call_handled_time_score,
       sco_employee_code,
+      sco_name,
       sco_remarks,
       is_active
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,'Y')
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?,?, ?,'Y')
   `;
 
   // SQL query to update the review_status in the call_data table
@@ -240,6 +244,7 @@ exports.createCoQaData = (req, res) => {
         addressTaggingScore || null, // Handle NULL values
         callHandledTimeScore || null, // Handle NULL values
         scoEmployeeCode,
+        scoName,
         scoRemarks
       ],
       (err, results) => {
@@ -443,12 +448,41 @@ exports.postSignalTypes = (req, res) =>{
 
 exports.postLogin = (req, res) => {
   const { username, password, agentType, module } = req.body;
+
   // Simple validation for the required fields
   if (!username || !password || !agentType || !module) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  // Simulated response based on the payload provided
+  // Define two sample users with different designations and full names
+  const users = {
+    user1: {
+      username: 'scotest',
+      password: '12345',
+      designation_id: '74',
+      fullname: 'SCO_TEST',
+      emp_code: 'SCO_1',
+    },
+    user2: {
+      username: 'admin',
+      password: '12345',
+      designation_id: '75',
+      fullname: 'ADMIN_TEST',
+      emp_code: 'ADM_1',
+    },
+  };
+
+  // Find the user based on the provided username and password
+  const user = Object.values(users).find(
+    (u) => u.username === username && u.password === password
+  );
+
+  // If user not found, return an error response
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid username or password' });
+  }
+
+  // Simulated response based on the authenticated user
   const response = {
     httpStatus: 'OK',
     payLoad: {
@@ -457,18 +491,18 @@ exports.postLogin = (req, res) => {
       agentRole: 'employeeType: district',
       userPasswordEncrypted: null,
       userProfileDto: {
-        employee_code: username,
+        employee_code: user.emp_code,
         desg_id: null,
-        desg_name: 'DSP',
+        desg_name: user.designation_id === '74' ? 'SCO' : 'Admin',
         desg_name_hindi: null,
         dept_id: '0',
         dept_name: null,
         e_id: '1234',
         pan_number: '',
         email_id: null,
-        fullname: 'TEST USER',
-        fname: 'TEST',
-        lname: 'USER',
+        fullname: user.fullname,
+        fname: user.fullname.split(' ')[0],
+        lname: user.fullname.split(' ')[1],
         name_hindi: null,
         gender: 'M',
         dob: '1969-03-12',
@@ -485,7 +519,7 @@ exports.postLogin = (req, res) => {
         p_zip: '',
         p_contact: null,
         joining_date: '1994-04-07',
-        designation_id: '65',
+        designation_id: user.designation_id,
         employment_type: 'R',
         authority1: '',
         authority2: '',
@@ -512,26 +546,28 @@ exports.postLogin = (req, res) => {
           'WDT',
           'CITIZEN_PORTAL',
           'PFT',
-          'REPORTS'
+          'REPORTS',
         ],
         agentRole: 'DISTRICT_ROLE',
         allocatedRoleParams: ['Mahendragarh'],
         agentSubRole: 5,
         location: 'Mahendragarh',
-        rank1: 'DSP',
+        rank1: user.designation_id === '74' ? 'SCO' : 'Admin',
         substantive_rnk: '',
         belt_no: '',
         erv_deployed: null,
-        erss_job_profile: null
-      }
+        erss_job_profile: null,
+      },
     },
     totalItems: null,
     totalPages: null,
     additionalData: null,
-    token: 'qZgwmNl1DTid0zhN9uC0ffXEakeGxrWH0/vWPa2PrW44MxNktUemMWaN5zQgTPjoCDFFNVXhPnFQrkS0QpOHviaIHGEAF5ifDuk+1Yqk7Pj3HnAnC665alO5DKkGtG0JFYqy94R1AE2EXVDmrCKAqS2OohIOB2haLyNTt04c0AWL+mTGGzcPE9Mu9dTNdWyeoR3NqFRAMgPIu88oyJYiCJGlZoRw8lPPo+Ly76rUfaqpV9jZRMhPnhn3zLTXBSCPCr8S/oZoc7jf4v5uB1oX54eFgoQGYn4+1S+pJBBBZQXeYhMINrlHfaDRHFj1qRuU'
+    token:
+      'qZgwmNl1DTid0zhN9uC0ffXEakeGxrWH0/vWPa2PrW44MxNktUemMWaN5zQgTPjoCDFFNVXhPnFQrkS0QpOHviaIHGEAF5ifDuk+1Yqk7Pj3HnAnC665alO5DKkGtG0JFYqy94R1AE2EXVDmrCKAqS2OohIOB2haLyNTt04c0AWL+mTGGzcPE9Mu9dTNdWyeoR3NqFRAMgPIu88oyJYiCJGlZoRw8lPPo+Ly76rUfaqpV9jZRMhPnhn3zLTXBSCPCr8S/oZoc7jf4v5uB1oX54eFgoQGYn4+1S+pJBBBZQXeYhMINrlHfaDRHFj1qRuU',
   };
 
   // Send the response
   res.status(200).json(response);
 };
+
 

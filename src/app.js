@@ -17,7 +17,7 @@ const userRoutes = require('./routes/users');
 app.use('/api/users', userRoutes);
 
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error(err);
   res.status(500).send('Something broke!');
 });
 
