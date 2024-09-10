@@ -3,7 +3,6 @@ const db = require('../db')
 
 exports.getCoQaDataByDateRange = (req, res) => {
   let { startDate, endDate, reportType } = req.query;
-  console.log(req.query);
 
   if (!startDate || !endDate) {
     const today = new Date();
@@ -54,8 +53,10 @@ exports.getCoQaDataByDateRange = (req, res) => {
     `;
     queryParams = [formattedStartDate, formattedEndDate];
   } else if (reportType === 'SCO') {
-    const formattedStartDateSco = formattedStartDate.replace(/(\d{2})-(\d{2})-(\d{4})/, '$3-$2-$1');
-    const formattedEndDateSco = formattedEndDate.replace(/(\d{2})-(\d{2})-(\d{4})/, '$3-$2-$1');
+
+    const formattedStartDateSco = new Date(startDate).toISOString().split('T')[0] + ' 00:00:00';
+    const formattedEndDateSco = new Date(endDate).toISOString().split('T')[0] + ' 23:59:59';
+
 
     query = `
   SELECT
@@ -170,7 +171,6 @@ exports.getCallData = (req, res) => {
 
 // Function to handle the POST request and insert data into the database
 exports.createCoQaData = (req, res) => {
-  console.log(req);
   const {
     signalId,
     scoQaTime,
@@ -378,7 +378,6 @@ exports.getScoDetailedData = (req, res) => {  const { scoEmployeeCode,startDate,
   `;
 
   const queryParams = [scoEmployeeCode,formattedStartDateSco, formattedEndDateSco];
-console.log(formattedStartDateSco);
   // Execute the query
   db.query(query, queryParams, (err, results) => {
     if (err) {
