@@ -457,13 +457,41 @@ exports.postLogin = (req, res) => {
   // Define two sample users with different designations and full names
   const users = {
     user1: {
-      username: 'scotest',
+      username: 'SCO1',
       password: '12345',
       designation_id: '74',
-      fullname: 'SCO_TEST',
-      emp_code: 'SCO_1',
+      fullname: 'Sco_1',
+      emp_code: 'SCO1',
     },
     user2: {
+      username: 'SCO2',
+      password: '12345',
+      designation_id: '74',
+      fullname: 'Sco_2',
+      emp_code: 'SCO2',
+    },
+    user3: {
+      username: 'SCO3',
+      password: '12345',
+      designation_id: '74',
+      fullname: 'Sco_3',
+      emp_code: 'SCO3',
+    },
+    user4: {
+      username: 'SCO4',
+      password: '12345',
+      designation_id: '74',
+      fullname: 'Sco_4',
+      emp_code: 'SCO4',
+    },
+    user5: {
+      username: 'SCO5',
+      password: '12345',
+      designation_id: '74',
+      fullname: 'Sco_5',
+      emp_code: 'SCO5',
+    },
+    user6: {
       username: 'admin',
       password: '12345',
       designation_id: '75',
