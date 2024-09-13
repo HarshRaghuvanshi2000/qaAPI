@@ -69,17 +69,17 @@ wss.on('connection', (ws) => {
 function handleUpdateStatus(userId, callId, status, ws) {
   if (userCallMap[userId]) {
     const previousCallId = userCallMap[userId];
-    if (callStatuses[previousCallId] === 'In Progress') {
+    if (callStatuses[previousCallId] === 'Being Reviewed') {
       callStatuses[previousCallId] = 'Pending';  // Set the previous call to Pending
       broadcastStatusUpdate(previousCallId, 'Pending', ws);
     }
   }
 
-  // Update the status of the new call to 'In Progress' for others and 'Playing' for the current user
-  callStatuses[callId] = 'In Progress';
+  // Update the status of the new call to 'Being Reviewed' for others and 'Playing' for the current user
+  callStatuses[callId] = 'Being Reviewed';
   userCallMap[userId] = callId;
 
-  broadcastStatusUpdate(callId, 'In Progress', ws);
+  broadcastStatusUpdate(callId, 'Being Reviewed', ws);
   ws.send(JSON.stringify({ type: 'STATUS_UPDATE', callId, status: 'Pending' }));
 }
 
