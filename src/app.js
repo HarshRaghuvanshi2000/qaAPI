@@ -47,6 +47,9 @@ const wss = new WebSocket.Server({ server });
 wss.on('connection', (ws) => {
   console.log('A new client connected!');
 
+  // Send current call statuses to the new user
+  sendCurrentStatuses(ws);
+
   ws.on('message', (message) => {
     try {
       const { type, userId, callId, status } = JSON.parse(message);
@@ -65,6 +68,13 @@ wss.on('connection', (ws) => {
     console.log('A client disconnected.');
   });
 });
+
+// Send the current status of all calls to the new user
+function sendCurrentStatuses(ws) {
+  for (const [callId, status] of Object.entries(callStatuses)) {
+    ws.send(JSON.stringify({ type: 'STATUS_UPDATE', callId, status }));
+  }
+}
 
 function handleUpdateStatus(userId, callId, status, ws) {
   if (userCallMap[userId]) {
