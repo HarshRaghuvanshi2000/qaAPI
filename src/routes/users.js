@@ -6,7 +6,7 @@ const usersController = require('../controllers/users');
 router.get('/co-qa-data', usersController.getCoQaDataByDateRange);
 router.get('/call-data', usersController.getCallData);
 router.post('/create-coqa-data', usersController.createCoQaData);
-router.post('/update-status', usersController.updateStatus);
+router.get('/get-status', usersController.getStatus);
 router.get('/call-summary', usersController.getCallSummaryBySignalType);
 router.get('/sco-detailed-data', usersController.getScoDetailedData);
 router.get('/signal-types', usersController.getSignalTypes);

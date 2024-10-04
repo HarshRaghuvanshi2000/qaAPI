@@ -292,34 +292,35 @@ exports.createCoQaData = (req, res) => {
     );
   });
 };
-exports.updateStatus = (req, res) => {
-  const { signalId, status } = req.body;
+exports.getStatus = (req, res) => {
+  const { signalId } = req.query; // Use req.query to get signalId for GET requests
 
-  // Validate that both signalId and status are provided
-  if (!signalId || !status) {
-    return res.status(400).json({ error: 'Both signalId and status must be provided.' });
+  // Validate that signalId is provided
+  if (!signalId) {
+    return res.status(400).json({ error: 'signalId must be provided.' });
   }
 
-  // SQL query to update the review_status in the call_data table
-  const updateQuery = `
-    UPDATE call_data
-    SET review_status = ?
+  // SQL query to get all data for the provided signalId
+  const selectQuery = `
+    SELECT * FROM call_data
     WHERE signal_id = ?
   `;
 
-  // Execute the update query
-  db.query(updateQuery, [status, signalId], (err, results) => {
+  // Execute the select query
+  db.query(selectQuery, [signalId], (err, results) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
 
-    if (results.affectedRows === 0) {
+    if (results.length === 0) {
       return res.status(404).json({ error: 'No record found with the provided signalId.' });
     }
 
-    res.status(200).json({ message: 'Status successfully updated.' });
+    // Return the results
+    res.status(200).json(results);
   });
 };
+
 
 exports.getCallSummaryBySignalType = (req, res) => {
   const getSignalTypesQuery = `SELECT signal_type_id, signal_type FROM master_signal_type WHERE is_active = 'Y'`;
