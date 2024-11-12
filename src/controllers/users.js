@@ -8,7 +8,6 @@ exports.getCoQaDataByDateRange = (req, res) => {
     const today = new Date();
     const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
 
-    // Format the dates to 'YYYY-MM-DD' format
     const formatDate = (date) => {
       const day = String(date.getDate()).padStart(2, '0');
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -16,13 +15,12 @@ exports.getCoQaDataByDateRange = (req, res) => {
       return `${year}-${month}-${day}`;
     };
 
-    startDate = formatDate(lastMonth);  // One month ago from today
-    endDate = formatDate(today);        // Today's date
+    startDate = formatDate(lastMonth);
+    endDate = formatDate(today);
   }
 
-  // Convert formatted start and end dates to JavaScript Date objects
-  const formattedStartDate = new Date(`${startDate}T00:00:00`).getTime(); // Convert to milliseconds
-  const formattedEndDate = new Date(`${endDate}T23:59:59`).getTime();     // Convert to milliseconds
+  const formattedStartDate = new Date(`${startDate}T00:00:00`).getTime();
+  const formattedEndDate = new Date(`${endDate}T23:59:59`).getTime();
 
   let query;
   let queryParams;
@@ -49,27 +47,27 @@ exports.getCoQaDataByDateRange = (req, res) => {
       JOIN call_data d
         ON c.signal_id = d.signal_id
       WHERE
-        d.review_status = 'completed' AND  signal_landing_time BETWEEN ? AND ?
+        d.review_status = 'completed' 
+        AND signal_landing_time BETWEEN ? AND ?
+        AND d.call_duration_millis IS NOT NULL -- Exclude rows with NULL call duration
       ORDER BY d.signal_landing_time DESC;
     `;
     queryParams = [formattedStartDate, formattedEndDate];
   } else if (reportType === 'SCO') {
-
     const formattedStartDateSco = new Date(startDate).toISOString().split('T')[0] + ' 00:00:00';
     const formattedEndDateSco = new Date(endDate).toISOString().split('T')[0] + ' 23:59:59';
 
-
     query = `
-  SELECT
-    sco_employee_code,
-    sco_name,
-    COUNT(*) AS total_calls,
-    AVG(sco_qa_time) AS average_qa_time_seconds
-FROM co_qa_data
-WHERE created_at BETWEEN ? AND ?
-GROUP BY sco_employee_code, sco_name;
-`;
-
+      SELECT
+        sco_employee_code,
+        sco_name,
+        COUNT(*) AS total_calls,
+        AVG(sco_qa_time) AS average_qa_time_seconds
+      FROM co_qa_data
+      WHERE created_at BETWEEN ? AND ?
+        AND sco_qa_time IS NOT NULL -- Exclude rows with NULL QA time
+      GROUP BY sco_employee_code, sco_name;
+    `;
     queryParams = [formattedStartDateSco, formattedEndDateSco];
   } else {
     return res.status(400).json({ error: "Invalid Report Type" });
@@ -81,28 +79,25 @@ GROUP BY sco_employee_code, sco_name;
     }
 
     if (reportType === 'CO') {
-      // Process the results to merge data by agent_name
       const aggregatedData = results.reduce((acc, curr) => {
-         const { agent_name, signal_type } = curr;
-    // Calculate the average score based on signal_type
-    let rowAverageScore;
-    if (signal_type === 1) {
-      // For signal_type 1, average all 5 scores
-      rowAverageScore = (
-        curr.sop_score +
-        curr.active_listening_score +
-        curr.relevent_detail_score +
-        curr.address_tagging_score +
-        curr.call_handled_time_score
-      ) / 5;
-    } else {
-      // For other signal_types, average only 3 scores
-      rowAverageScore = (
-        curr.sop_score +
-        curr.active_listening_score +
-        curr.call_handled_time_score
-      ) / 3;
-    }
+        const { agent_name, signal_type } = curr;
+
+        let rowAverageScore;
+        if (signal_type === 1) {
+          rowAverageScore = (
+            curr.sop_score +
+            curr.active_listening_score +
+            curr.relevent_detail_score +
+            curr.address_tagging_score +
+            curr.call_handled_time_score
+          ) / 5;
+        } else {
+          rowAverageScore = (
+            curr.sop_score +
+            curr.active_listening_score +
+            curr.call_handled_time_score
+          ) / 3;
+        }
 
         if (!acc[agent_name]) {
           acc[agent_name] = {
@@ -122,7 +117,7 @@ GROUP BY sco_employee_code, sco_name;
 
         acc[agent_name].total_calls += 1;
         acc[agent_name].total_completed_calls += 1;
-        acc[agent_name].total_scores += rowAverageScore; // Accumulate the row's average score
+        acc[agent_name].total_scores += rowAverageScore;
         acc[agent_name].sop_score += curr.sop_score;
         acc[agent_name].active_listening_score += curr.active_listening_score;
         acc[agent_name].relevent_detail_score += curr.relevent_detail_score;
@@ -133,29 +128,27 @@ GROUP BY sco_employee_code, sco_name;
         return acc;
       }, {});
 
-      const aggregatedArray = Object.values(aggregatedData).map(agent => {
-        return {
-          ...agent,
-          average_score: agent.total_scores / agent.total_calls, // Calculate the overall average score for the agent
-          average_call_duration_millis: agent.call_duration_millis / agent.total_calls,
-        };
-      });
+      const aggregatedArray = Object.values(aggregatedData).map(agent => ({
+        ...agent,
+        average_score: agent.total_scores / agent.total_calls,
+        average_call_duration_millis: agent.call_duration_millis / agent.total_completed_calls, // Calculate average excluding NULL values
+      }));
 
       res.json(aggregatedArray);
     } else if (reportType === 'SCO') {
-      // Convert average_qa_time_seconds back to HH:MM:SS format
       const scoResults = results.map(item => ({
         sco_name: item.sco_name,
         sco_employee_code: item.sco_employee_code,
         total_calls: item.total_calls,
         average_qa_time: item.average_qa_time_seconds,
-        pending_calls : 0
+        pending_calls: 0
       }));
 
       res.json(scoResults);
     }
   });
 };
+
 
 
 

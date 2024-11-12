@@ -11,7 +11,7 @@ const dbConfig = {
   port: process.env.DB_PORT || 3306
 };
 
-const IP_ADDR = '10.26.0.26'; // Replace with actual IP address from .env
+const IP_ADDR = '10.26.0.107'; // Replace with actual IP address from .env
 const PORT = '8080'; // Replace with actual port from .env
 const currentDate = new Date();
 
@@ -21,28 +21,42 @@ previousDay.setDate(currentDate.getDate() - 1);  // Set to the previous day
 
 // Calculate the start time (00:00:00) of the previous day in milliseconds
 const startTime = new Date(previousDay.setHours(0, 0, 0, 0)).getTime();  // Start of the previous day in milliseconds
+// const startTime = new Date(previousDay.setHours(0, 15, 0, 0)).getTime(); // Start of the previous day at 00:15 AM
+
 
 // Calculate the end time (23:59:59) of the previous day in milliseconds
 const endTime = new Date(previousDay.setHours(23, 59, 59, 999)).getTime();
+  // const endTime = new Date(previousDay.setHours(0, 14, 59, 999)).getTime(); // End at 00:14:59.999
+
+
 async function fetchDataAndInsert() {
   let connection;
   try {
     const response = await axios.get(`http://${IP_ADDR}:${PORT}/ERSSBiServer/bi/v1/auth/quality/signal-info/complex`, {
       params: {
-        // startTime: startTime,
-        // endTime: endTime,
-        startTime : 1725733800000,
-        endTime: 1725820200000,
+        startTime: startTime,
+        endTime: endTime,
+        //  startTime : 1725132600000,
+        //  endTime: 1725219000000,
         isSummary: false,
         asDownloadable: true,
         pageNumber: 0,
         pageSize: 10000
       }
     });
-
+    const params1 = {
+      startTime: startTime,
+      endTime: endTime,
+      isSummary: false,
+      asDownloadable: true,
+      pageNumber: 0,
+      pageSize: 10000
+    };
+    
+    // Log only the params object
+    console.log('Request Parameters:', params1);
     // Extract data from the response
     const data = response.data.returnList;
-  
     // Create a MySQL connection
     connection = await mysql.createConnection(dbConfig);
   
@@ -55,6 +69,17 @@ async function fetchDataAndInsert() {
       // Use the signal_status value as is, including underscores
       statusMap[status.signal_status] = status.signal_status_id;
     });
+
+    const logQuery1 = `
+    INSERT INTO cron_job_logs (log_details, created_at, updated_at)
+    VALUES (?, NOW(), NOW())
+  `;
+  const logData = {
+    success: true,
+    apiResponse: response.data   // Log the API response data
+  };
+  await connection.execute(logQuery1, [JSON.stringify(logData)]);
+
     // Prepare the SQL query for batch insertion
     const insertQuery = `
       INSERT INTO call_data (
