@@ -396,6 +396,43 @@ exports.getScoDetailedData = (req, res) => {  const { scoEmployeeCode,startDate,
     res.json(results);
   });
 };
+
+
+exports.getCoDetailedData = (req, res) => {  const { employeeCode,startDate, endDate } = req.query;
+  // Format dates for SQL query (if necessary)
+  const formattedStartDate = `${startDate.split('-').reverse().join('-')} 00:00:00`;
+  const formattedEndDate = `${endDate.split('-').reverse().join('-')} 23:59:59`;
+  const formattedStartDateSco = formattedStartDate.replace(/(\d{2})-(\d{2})-(\d{4})/, '$3-$2-$1');
+  const formattedEndDateSco = formattedEndDate.replace(/(\d{2})-(\d{2})-(\d{4})/, '$3-$2-$1');
+  // SQL query to retrieve data
+  const query = `
+    SELECT
+      c.sco_employee_code,
+      d.agent_full_name AS co_name,
+      d.agent_name AS co_employee_code,
+      c.sco_qa_time,
+      c.sop_score,
+      c.active_listening_score,
+      c.relevent_detail_score,
+      c.address_tagging_score,
+      c.call_handled_time_score,
+      c.sco_remarks
+    FROM co_qa_data c
+    JOIN call_data d ON c.signal_id = d.signal_id
+    WHERE d.agent_name = ? AND c.created_at BETWEEN ? AND ?;
+  `;
+
+  const queryParams = [employeeCode,formattedStartDateSco, formattedEndDateSco];
+  // Execute the query
+  db.query(query, queryParams, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(results);
+  });
+};
+
+
 exports.getSignalTypes = (req, res) =>{
 
   // SQL query to retrieve active signal types
